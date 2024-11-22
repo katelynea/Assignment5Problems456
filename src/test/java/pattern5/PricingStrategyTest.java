@@ -47,15 +47,24 @@ public class PricingStrategyTest {
     @Test
     public void testStrategySwitch() {
         PriceCalculator calculator = new PriceCalculator();
-        RideContext context = new RideContext(10.0, 14, 50, 30);
+        // Creating a context with high demand relative to drivers
+        // (60 demand for 50 drivers should trigger surge pricing)
+        RideContext context = new RideContext(10.0, 14, 50, 60);
 
+        // Test standard pricing
         calculator.setStrategy(new StandardPricingStrategy());
         double standardPrice = calculator.calculatePrice(context);
 
+        // Test surge pricing
         calculator.setStrategy(new SurgePricingStrategy());
         double surgePrice = calculator.calculatePrice(context);
 
-        assertNotEquals("Different strategies should yield different prices",
-                standardPrice, surgePrice, DELTA);
+        // Standard price should be basePrice(2.0) * distance(10.0) = 20.0
+        assertEquals("Standard price should be 20.0", 20.0, standardPrice, DELTA);
+
+        // Surge price should be higher
+        assertTrue("Surge price should be higher than standard price", surgePrice > standardPrice);
+        System.out.println("Standard Price: " + standardPrice);
+        System.out.println("Surge Price: " + surgePrice);
     }
 }
